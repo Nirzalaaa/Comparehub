@@ -12,3 +12,4 @@ sentence-transformers
 google-generativeai
 pillow
 gunicorn
+python-dotenv

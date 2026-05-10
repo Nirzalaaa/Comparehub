@@ -11,3 +11,4 @@ python-Levenshtein
 sentence-transformers
 google-generativeai
 pillow
+gunicorn

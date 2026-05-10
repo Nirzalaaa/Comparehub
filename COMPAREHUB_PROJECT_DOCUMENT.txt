@@ -1,0 +1,267 @@
+COMPAREHUB PROJECT DOCUMENT
+===========================
+
+1. PROJECT OVERVIEW
+CompareHub is a product comparison website built to search one product name and compare live prices across multiple e-commerce platforms. The current project compares products from Amazon, Flipkart, Myntra, and selected Meesho categories.
+
+The main goal of the website is simple:
+- Let the user search for a product in one place.
+- Fetch live product data from multiple shopping sites.
+- Match the same or similar products across platforms.
+- Show the best available price clearly on one screen.
+
+
+2. TECHNOLOGY STACK
+Frontend:
+- HTML
+- CSS
+- Vanilla JavaScript
+
+Backend:
+- Python
+- Flask
+- Flask-CORS
+
+Scraping and data collection:
+- Playwright
+- requests
+- aiohttp
+- BeautifulSoup4
+- lxml
+
+Matching and optimization:
+- cachetools TTL cache
+- thefuzz
+- python-Levenshtein
+- sentence-transformers (kept as optional or fallback path)
+
+
+3. HOW WE BUILT THE WEBSITE
+We built the project in two major parts: frontend and backend.
+
+Frontend build:
+- The UI is a single-page website built with index.html, css/style.css, and js/app.js.
+- The hero section introduces the product search flow.
+- The user enters a product name in the search box.
+- JavaScript sends requests to the backend API at http://localhost:5000.
+- The frontend renders product cards, filters, category sections, typeahead suggestions, comparison features, and result states.
+- Recent UI work also improved the hero background animation and price filter input behavior.
+
+Backend build:
+- The backend is a Flask server in backend/app.py.
+- It serves both the frontend files and the API endpoints.
+- Main endpoints include:
+  /api/status
+  /api/search?q=<query>
+  /api/scrape/raw?q=<query>
+  /api/cache/clear
+  /api/trending
+  /api/suggestions
+
+Search flow:
+- User types a query on the frontend.
+- The backend normalizes and analyzes the query.
+- The scraper fetches product data from supported platforms.
+- The matcher groups related products from different platforms.
+- The backend returns a compact JSON payload.
+- The frontend shows product cards with prices, links, ratings, and comparison data.
+
+
+4. CURRENT ARCHITECTURE
+The current architecture is:
+
+User -> Frontend UI -> Flask API -> Scraper Engine -> Product Matcher -> Response -> Frontend Rendering
+
+Detailed flow:
+- The frontend sends a search request.
+- Flask receives the request.
+- Query normalization and suggestion logic run first.
+- The scraper starts platform scraping, mostly in parallel.
+- Raw platform data is cleaned and normalized.
+- Matching logic groups the same or very similar products.
+- Compact result data is returned to the browser.
+- The frontend applies filters, sorting, and display logic.
+
+
+5. MAIN FEATURES IMPLEMENTED
+- Search one product across multiple platforms.
+- Live scraping for fresh product data.
+- Typeahead search suggestions.
+- Trending and popular search suggestions.
+- Product grouping across different websites.
+- Variant-aware comparison for product models and storage options.
+- Price filters and sorting.
+- Category-based browsing.
+- Recent search history.
+- Dynamic hero and modern UI sections.
+- Compact result payloads for faster rendering.
+- Cache clear endpoint for development and scraper updates.
+
+
+6. PERFORMANCE STRATEGY
+This project had a major performance problem at the beginning because live scraping is slow by nature. To improve that, the project uses the following strategy:
+
+- Shorter Playwright and selector timeouts.
+- Concurrent async scraping where possible.
+- Compact API responses instead of large payloads.
+- One-hour in-memory TTL cache.
+- Coalescing duplicate in-flight searches so repeated same-query requests do not start duplicate scrape jobs.
+- Lightweight extraction paths before heavier fallback paths.
+- Optional AI fallback only when page quality or confidence is weak.
+
+Observed performance from existing project notes:
+- First live request: around 10.5 seconds
+- Cached request: less than 100 milliseconds
+
+
+7. PROBLEMS WE FACED DURING DEVELOPMENT
+The biggest problems in this project came from web scraping, matching accuracy, and performance.
+
+Problem 1: E-commerce websites block scraping
+- Amazon and Meesho can block requests or return incomplete pages.
+- Some pages load content dynamically with JavaScript.
+- Static HTTP requests alone were not reliable.
+
+What we did:
+- Used Playwright for browser-based scraping.
+- Added stealth-style browser settings and realistic user agents.
+- Added fallback extraction logic and direct HTTP fetches where possible.
+
+Problem 2: Slow live scraping
+- Opening browser pages for multiple platforms takes time.
+- Dynamic websites increase wait time.
+- Live scraping on every request made the app feel slow.
+
+What we did:
+- Reduced timeouts.
+- Used async scraping.
+- Added TTL caching.
+- Returned compact payloads.
+- Avoided running AI matching by default.
+
+Problem 3: Matching the same product across platforms
+- Product names are written differently on each site.
+- Some listings include color, size, RAM, storage, or marketing words.
+- Exact string matching was not enough.
+
+What we did:
+- Used normalized search terms.
+- Used Jaccard-style similarity and fuzzy matching.
+- Added variant handling.
+- Canonicalized product links where possible.
+
+Problem 4: Duplicate requests for the same query
+- If two users or two frontend actions requested the same product together, the backend could repeat expensive work.
+
+What we did:
+- Added in-flight request coalescing in the backend so similar active requests can share the same running scrape job.
+
+Problem 5: Weak data quality from some pages
+- Sometimes a page gives partial data, no price, no rating, or weak product titles.
+- Platform structures change often.
+
+What we did:
+- Added filtering and validation rules.
+- Added optional AI fallback for low-confidence or low-result cases.
+- Restricted some platform usage for categories where results are more reliable.
+
+Problem 6: Frontend UX issues
+- Dynamic search interfaces can create typing and state-management issues.
+- Price filters needed better typing behavior.
+- The hero section needed stronger visual polish.
+
+What we did:
+- Improved the search suggestion flow.
+- Fixed the min/max price typing behavior.
+- Enhanced the hero background with animation.
+
+
+8. CURRENT LIMITATIONS AND REMAINING PROBLEMS
+Even after improvements, some issues still exist.
+
+- First live search is still slow compared to normal database-backed apps.
+- Amazon can still block or degrade results.
+- Meesho often loads slowly and is only reliable for selected categories.
+- In-memory cache is not persistent. It resets when the server restarts.
+- The frontend API base URL is hardcoded to localhost in the JavaScript file, so deployment needs configuration work.
+- The backend currently runs in Flask debug mode in local development.
+- There is no user authentication, admin panel, or database storage.
+- The scraper depends on external website HTML structures, which can break at any time if those websites change.
+- AI fallback needs external configuration and is not always enabled.
+
+
+9. FILE STRUCTURE SUMMARY
+Important files in this project:
+
+- index.html
+  Main frontend page
+
+- css/style.css
+  Full website styling and animations
+
+- js/app.js
+  Frontend logic for search, filtering, suggestions, rendering, and interactions
+
+- backend/app.py
+  Flask server and API routes
+
+- backend/scraper.py
+  Main scraping engine and extraction logic
+
+- backend/matcher.py
+  Product grouping and cross-platform matching logic
+
+- QUICKSTART.md
+  Startup and API usage notes
+
+- PERFORMANCE.md
+  Optimization summary and performance notes
+
+
+10. HOW TO RUN THE PROJECT
+Basic local run steps:
+
+1. Open terminal in the project folder.
+2. Go to backend:
+   cd backend
+3. Install dependencies:
+   pip install -r requirements.txt
+4. Install Playwright browser if needed:
+   playwright install
+5. Start the server:
+   python app.py
+6. Open in browser:
+   http://localhost:5000
+
+
+11. WHAT MAKES THIS PROJECT IMPORTANT
+This project is more than a static website. It combines:
+- frontend UI design
+- backend API development
+- live scraping
+- async execution
+- data cleaning
+- product matching
+- performance optimization
+
+That makes it a practical full-stack comparison engine rather than a basic demo page.
+
+
+12. FUTURE IMPROVEMENTS
+Suggested next improvements:
+- Move cache from memory to Redis or a database.
+- Add proper deployment configuration for API base URLs.
+- Add retry policies and stronger anti-blocking strategies.
+- Add test coverage for frontend filters and backend scraping outputs.
+- Add product detail pages and price history.
+- Add database storage for trending searches and analytics.
+- Add user accounts and saved comparisons.
+- Add better error reporting and monitoring.
+
+
+13. FINAL SUMMARY
+CompareHub was built as a full-stack product comparison website using a static frontend and a Python Flask backend. The project solves a real comparison problem by scraping multiple marketplaces, matching similar products, and presenting the best prices in one interface.
+
+The biggest development challenges were scraping reliability, slow live search performance, and matching the same product across different marketplaces. These were addressed with Playwright, async scraping, caching, filtering, fuzzy matching, and fallback strategies.
+
+The project is working well for local use and demonstrates strong full-stack and scraping logic, but it still has real-world limitations such as platform blocking, dynamic site changes, and deployment configuration gaps.

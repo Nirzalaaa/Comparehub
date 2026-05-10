@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="CompareHub – Compare real product prices across Amazon, Flipkart, Meesho & Myntra.">
+  <title>CompareHub – Smart Product Comparison</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#hero" class="nav-brand">
+        <span class="brand-compare">Compare</span><span class="brand-hub">Hub</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#categories-section">Categories</a></li>
+        <li><a href="#products-section">Products</a></li>
+        <li><a href="#wishlist-section">Wishlist</a></li>
+        <li><a href="#trending-section">Recent</a></li>
+      </ul>
+      <div class="nav-actions">
+        <span class="api-status" id="apiStatus" title="Backend status">
+          <span class="status-dot offline"></span>
+          <span class="status-text">Offline</span>
+        </span>
+        <button class="nav-compare-btn" id="navCompareBtn" onclick="scrollToComparison()">
+          Compare <span class="compare-count" id="compareCount">0</span>
+        </button>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">&#9776;</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="hero-background" aria-hidden="true">
+      <span class="hero-orb hero-orb-one"></span>
+      <span class="hero-orb hero-orb-two"></span>
+      <span class="hero-orb hero-orb-three"></span>
+      <span class="hero-grid"></span>
+    </div>
+    <div class="container">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Live Price Comparison from Amazon, Flipkart, Meesho & Myntra
+      </div>
+      <h1>Find the <span class="gradient-text">Best Price</span><br>Across All Platforms</h1>
+      <p>Search any product and get real-time prices from Amazon, Flipkart, Meesho & Myntra. Our engine finds
+        the best deal instantly.</p>
+
+      <!-- Search -->
+      <div class="search-container">
+        <div class="search-box">
+          <span class="search-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+          <input type="text" id="searchInput"
+            placeholder="Search any product..."
+            autocomplete="off">
+          
+          <button type="button" class="icon-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="Voice Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+          </button>
+
+          <label class="icon-btn" id="imageSearchBtn" title="Search by Image" style="cursor: pointer;">
+            <input type="file" id="imageSearchInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </label>
+
+          <button class="search-btn" id="searchBtn">Search</button>
+        </div>
+        <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="Search suggestions"
+          hidden></div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Category:</label>
+          <select id="filterCategory" onchange="applyFilters()">
+            <option value="All">All</option>
+            <option value="Mobiles">Mobiles</option>
+            <option value="Laptops">Laptops</option>
+            <option value="TVs">TVs</option>
+            <option value="Audio">Audio</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Appliances">Appliances</option>
+            <option value="Watches">Watches</option>
+            <option value="Fashion">Fashion</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Min Price:</label>
+          <input type="number" id="filterMinPrice" min="0" step="1" value="0" placeholder="0" oninput="applyFilters()">
+        </div>
+        <div class="filter-group">
+          <label>Max Price:</label>
+          <input type="number" id="filterMaxPrice" min="0" step="1" placeholder="200000" oninput="applyFilters()">
+        </div>
+        <div class="filter-group">
+          <label>Rating:</label>
+          <select id="filterRating" onchange="applyFilters()">
+            <option value="0">Any</option>
+            <option value="3">3+ Stars</option>
+            <option value="4">4+ Stars</option>
+            <option value="4.5">4.5+ Stars</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Sort:</label>
+          <select id="sortSelect" onchange="applyFilters()">
+            <option value="relevance">Relevance</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="rating">Rating</option>
+            <option value="reviews">Most Reviews</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-value" id="statProducts">0</div>
+          <div class="stat-label">Results</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">4</div>
+          <div class="stat-label">Platforms</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">Live</div>
+          <div class="stat-label">Scraping</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">Real</div>
+          <div class="stat-label">Prices</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="section" id="categories-section">
+    <div class="container">
+      <h2 class="section-title">Browse by Category</h2>
+      <p class="section-subtitle">Click a category to search for products in that category</p>
+      <div class="categories-grid" id="categoriesGrid"></div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="section" id="products-section">
+    <div class="container">
+      <h2 class="section-title">Search Results</h2>
+      <p class="section-subtitle">Live prices from Amazon, Flipkart, Meesho & Myntra &ndash; best price highlighted
+        automatically</p>
+      <div class="products-header">
+        <span class="results-count" id="resultsCount"></span>
+        <span class="data-source" id="dataSource"></span>
+      </div>
+      <div id="loadingIndicator" class="loading-indicator" style="display:none">
+        <div class="spinner"></div>
+        <span>Fetching live prices from Amazon, Flipkart, Meesho & Myntra...</span>
+      </div>
+      <div class="products-grid" id="productsGrid"></div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="section comparison-section" id="comparison-section">
+    <div class="container">
+      <h2 class="section-title">Side-by-Side Comparison</h2>
+      <p class="section-subtitle">Compare selected products &ndash; best values highlighted in green</p>
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table" id="comparisonTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wishlist Section -->
+  <section class="section" id="wishlist-section">
+    <div class="container">
+      <h2 class="section-title">Your Wishlist</h2>
+      <p class="section-subtitle">Products you saved for later &mdash; click to search again</p>
+      <div class="wishlist-grid" id="wishlistGrid"></div>
+    </div>
+  </section>
+
+  <!-- Recent Searches Section -->
+  <section class="section" id="trending-section">
+    <div class="container">
+      <h2 class="section-title">Recent Searches</h2>
+      <p class="section-subtitle">Click a search to find those products again</p>
+      <div class="trending-grid" id="trendingGrid"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>CompareHub &copy; 2026 &mdash; Live Price Comparison Engine</p>
+    </div>
+  </footer>
+
+  <!-- Scroll to top -->
+  <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15" />
+    </svg>
+  </button>
+
+  <!-- Voice Search Overlay -->
+  <div class="siri-overlay" id="siriOverlay">
+    <div class="siri-wave-container" id="siriWaveContainer"></div>
+    <div class="siri-text" id="siriText">Listening...</div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/siriwave/dist/siriwave.umd.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

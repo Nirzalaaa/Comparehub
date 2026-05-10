@@ -1,0 +1,7 @@
+==================================================
+  CompareHub – Async Live Scraping (With Cache)
+  http://localhost:5000
+  Scrapes: Amazon, Flipkart, Meesho, Myntra
+==================================================
+ * Serving Flask app 'app'
+ * Debug mode: on

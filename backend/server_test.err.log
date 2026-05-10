@@ -1,0 +1,24 @@
+23:40:35 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+23:40:35 [INFO] [33mPress CTRL+C to quit[0m
+23:40:49 [INFO] [API] Live scraping for: 'gaming mouse'
+23:40:49 [INFO] 
+==================================================
+23:40:49 [INFO]   Live Scraping (Async): 'gaming mouse'
+23:40:49 [INFO] ==================================================
+23:40:49 [INFO] [Search] Category: Electronics (rules, 0.88) | Platforms: amazon, flipkart
+23:40:49 [INFO] [Search] Rewrite candidates: gaming mouse (normalized)
+23:40:55 [INFO] [Flipkart] Scraping: https://www.flipkart.com/search?q=gaming+mouse
+23:40:55 [INFO] [Amazon] Attempt 1/3: https://www.amazon.in/s?k=gaming+mouse&ref=nb_sb_noss
+23:41:00 [INFO] [Flipkart] Scraped 20 products
+23:41:01 [INFO] [Amazon] Attempt 2/3: https://www.amazon.in/s?k=gaming+mouse&i=electronics
+23:41:06 [INFO] [Amazon] Attempt 3/3: https://m.amazon.in/s?k=gaming+mouse
+23:41:15 [WARNING] [Amazon] Selector timeout on JS path; falling back to HTML parse
+23:41:15 [WARNING] [Amazon] Captcha/anti-bot page detected on this attempt
+23:41:15 [INFO] [Amazon] Scraped 0 products
+23:41:15 [INFO] [Flipkart] Filtered by query relevance: 20 -> 13
+23:41:16 [INFO] [Amazon] → 0 products
+23:41:16 [INFO] [Flipkart] → 13 products
+23:41:16 [INFO] [Meesho] → 0 products
+23:41:16 [INFO] [Myntra] → 0 products
+23:41:16 [INFO] 127.0.0.1 - - [30/Mar/2026 23:41:16] "GET /api/search?q=gaming%20mouse%20under%202000 HTTP/1.1" 200 -
